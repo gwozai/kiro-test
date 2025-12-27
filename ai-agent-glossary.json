@@ -1,0 +1,92 @@
+{
+  "title": "AI Agent 词库",
+  "updated_at": "2025-12-27T10:55:00Z",
+  "source": "GitHub + Web Search",
+  "frameworks": [
+    {"name": "LangChain", "stars": 122778, "url": "https://github.com/langchain-ai/langchain", "description": "最流行的 Agent 平台"},
+    {"name": "MetaGPT", "stars": 61829, "url": "https://github.com/FoundationAgents/MetaGPT", "description": "多 Agent 协作框架"},
+    {"name": "AutoGen", "stars": 52906, "url": "https://github.com/microsoft/autogen", "description": "微软的 Agentic AI 框架"},
+    {"name": "CrewAI", "stars": 41816, "url": "https://github.com/crewAIInc/crewAI", "description": "角色扮演 Agent 编排"},
+    {"name": "Haystack", "stars": 23737, "url": "https://github.com/deepset-ai/haystack", "description": "RAG + Agent 编排"},
+    {"name": "Open-AutoGLM", "stars": 19664, "url": "https://github.com/zai-org/Open-AutoGLM", "description": "开源手机 Agent"},
+    {"name": "Mastra", "stars": 19000, "url": "https://github.com/mastra-ai/mastra", "description": "TypeScript Agent 框架，支持 MCP"},
+    {"name": "DeerFlow", "stars": 18831, "url": "https://github.com/bytedance/deer-flow", "description": "字节跳动深度研究框架"},
+    {"name": "OpenAI Agents", "stars": 18003, "url": "https://github.com/openai/openai-agents-python", "description": "OpenAI 官方多 Agent 框架"},
+    {"name": "DB-GPT", "stars": 17888, "url": "https://github.com/eosphoros-ai/DB-GPT", "description": "AI 原生数据应用框架"},
+    {"name": "12-Factor-Agents", "stars": 17299, "url": "https://github.com/humanlayer/12-factor-agents", "description": "Agent 开发最佳实践"},
+    {"name": "Eliza", "stars": 17234, "url": "https://github.com/elizaOS/eliza", "description": "自主 Agent 框架"},
+    {"name": "SuperAGI", "stars": 16964, "url": "https://github.com/TransformerOptimus/SuperAGI", "description": "开源自主 AI Agent 框架"},
+    {"name": "RagaAI-Catalyst", "stars": 16094, "url": "https://github.com/raga-ai-hub/RagaAI-Catalyst", "description": "Agent 可观测性框架"},
+    {"name": "CAMEL", "stars": 15136, "url": "https://github.com/camel-ai/camel", "description": "首个多 Agent 框架"},
+    {"name": "Pydantic-AI", "stars": 13995, "url": "https://github.com/pydantic/pydantic-ai", "description": "Pydantic 风格 Agent 框架"},
+    {"name": "Motia", "stars": 13769, "url": "https://github.com/MotiaDev/motia", "description": "多语言后端 Agent 框架"},
+    {"name": "Agent-Zero", "stars": 12682, "url": "https://github.com/agent0ai/agent-zero", "description": "Agent Zero AI 框架"},
+    {"name": "Claude-Flow", "stars": 10897, "url": "https://github.com/ruvnet/claude-flow", "description": "Claude MCP 协议 Agent 编排"},
+    {"name": "WeKnora", "stars": 10300, "url": "https://github.com/Tencent/WeKnora", "description": "腾讯 RAG 框架"}
+  ],
+  "glossary": {
+    "基础概念": [
+      {"term": "Agent", "zh": "智能体/代理", "desc": "自主感知环境并执行任务的 AI 实体"},
+      {"term": "Multi-Agent", "zh": "多智能体", "desc": "多个 Agent 协作完成任务"},
+      {"term": "Agentic AI", "zh": "代理式 AI", "desc": "具有自主决策能力的 AI 系统"},
+      {"term": "Autonomous Agent", "zh": "自主代理", "desc": "无需人工干预的 Agent"},
+      {"term": "Swarm Intelligence", "zh": "群体智能", "desc": "多 Agent 协同产生的集体智慧"}
+    ],
+    "架构模式": [
+      {"term": "ReAct", "zh": "推理行动", "desc": "Reasoning + Acting 模式"},
+      {"term": "Chain-of-Thought", "zh": "思维链", "desc": "逐步推理的提示技术"},
+      {"term": "Tool Calling", "zh": "工具调用", "desc": "Agent 调用外部工具"},
+      {"term": "Function Calling", "zh": "函数调用", "desc": "LLM 调用预定义函数"},
+      {"term": "Orchestration", "zh": "编排", "desc": "协调多个 Agent 或工具"},
+      {"term": "Workflow", "zh": "工作流", "desc": "任务执行的流程定义"},
+      {"term": "Pipeline", "zh": "管道", "desc": "数据处理的串行流程"}
+    ],
+    "记忆与知识": [
+      {"term": "RAG", "zh": "检索增强生成", "desc": "Retrieval-Augmented Generation"},
+      {"term": "Vector DB", "zh": "向量数据库", "desc": "存储和检索向量嵌入"},
+      {"term": "Embedding", "zh": "嵌入向量", "desc": "文本的数值表示"},
+      {"term": "Context Window", "zh": "上下文窗口", "desc": "模型能处理的最大 token 数"},
+      {"term": "Long-term Memory", "zh": "长期记忆", "desc": "跨会话持久化的信息"},
+      {"term": "Short-term Memory", "zh": "短期记忆", "desc": "当前会话的上下文"},
+      {"term": "Grounding", "zh": "知识锚定", "desc": "将 AI 输出与事实关联"}
+    ],
+    "执行与规划": [
+      {"term": "Planning", "zh": "规划", "desc": "制定任务执行计划"},
+      {"term": "Reasoning", "zh": "推理", "desc": "逻辑分析和判断"},
+      {"term": "Reflection", "zh": "反思", "desc": "Agent 自我评估和改进"},
+      {"term": "Self-correction", "zh": "自我纠正", "desc": "检测并修复错误"},
+      {"term": "Task Decomposition", "zh": "任务分解", "desc": "将复杂任务拆分为子任务"},
+      {"term": "Goal-oriented", "zh": "目标导向", "desc": "以目标为驱动的行为"}
+    ],
+    "协议与接口": [
+      {"term": "MCP", "zh": "模型上下文协议", "desc": "Model Context Protocol"},
+      {"term": "API Gateway", "zh": "API 网关", "desc": "统一的 API 入口"},
+      {"term": "Webhook", "zh": "网络钩子", "desc": "事件驱动的回调"},
+      {"term": "Streaming", "zh": "流式输出", "desc": "实时返回生成内容"},
+      {"term": "SSE", "zh": "服务器推送事件", "desc": "Server-Sent Events"}
+    ],
+    "评估与监控": [
+      {"term": "Observability", "zh": "可观测性", "desc": "系统运行状态的可见性"},
+      {"term": "Tracing", "zh": "追踪", "desc": "记录执行路径"},
+      {"term": "Evaluation", "zh": "评估", "desc": "衡量 Agent 性能"},
+      {"term": "Hallucination", "zh": "幻觉", "desc": "生成虚假信息"},
+      {"term": "Token", "zh": "令牌", "desc": "文本的最小处理单位"},
+      {"term": "Latency", "zh": "延迟", "desc": "响应时间"}
+    ],
+    "高级概念": [
+      {"term": "AWEL", "zh": "代理工作流表达语言", "desc": "Agentic Workflow Expression Language"},
+      {"term": "Human-in-the-loop", "zh": "人在回路", "desc": "人工参与决策"},
+      {"term": "Guardrails", "zh": "护栏", "desc": "限制 AI 行为的安全机制"},
+      {"term": "Prompt Engineering", "zh": "提示工程", "desc": "优化提示词的技术"},
+      {"term": "Fine-tuning", "zh": "微调", "desc": "针对特定任务训练模型"},
+      {"term": "Zero-shot", "zh": "零样本", "desc": "无需示例直接执行"},
+      {"term": "Few-shot", "zh": "少样本", "desc": "提供少量示例学习"}
+    ]
+  },
+  "reference_urls": [
+    "https://www.analyticsvidhya.com/blog/2025/03/ai-agents-terms/",
+    "https://turion.ai/blog/ai-agents-glossary-terminology/",
+    "https://blog.dailydoseofds.com/p/30-must-know-agentic-ai-terms",
+    "https://zapier.com/blog/ai-terms/"
+  ]
+}
