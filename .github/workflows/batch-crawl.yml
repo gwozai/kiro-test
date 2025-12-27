@@ -1,0 +1,165 @@
+name: 批量抓取网页
+
+on:
+  workflow_dispatch:
+    inputs:
+      start_page:
+        description: '起始页码'
+        required: true
+        default: '1'
+      end_page:
+        description: '结束页码'
+        required: true
+        default: '455'
+      concurrency:
+        description: '并发数'
+        required: true
+        default: '10'
+
+jobs:
+  crawl:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: 安装依赖
+        run: |
+          sudo apt-get update && sudo apt-get install -y html2text
+          npm install playwright
+          npx playwright install chromium --with-deps
+
+      - name: 创建抓取脚本
+        run: |
+          cat > crawl.js << 'EOF'
+          const { chromium } = require('playwright');
+          const fs = require('fs');
+          const path = require('path');
+
+          const START_PAGE = parseInt(process.env.START_PAGE) || 1;
+          const END_PAGE = parseInt(process.env.END_PAGE) || 455;
+          const CONCURRENCY = parseInt(process.env.CONCURRENCY) || 10;
+          const BASE_URL = 'https://www.nihaowua.com';
+          const OUTPUT_DIR = 'crawled_data';
+
+          // 创建输出目录
+          if (!fs.existsSync(OUTPUT_DIR)) {
+            fs.mkdirSync(OUTPUT_DIR, { recursive: true });
+          }
+
+          async function crawlPage(browser, pageNum) {
+            const context = await browser.newContext();
+            const page = await context.newPage();
+            
+            try {
+              const url = pageNum === 1 ? BASE_URL : `${BASE_URL}/page/${pageNum}/`;
+              console.log(`🔄 抓取第 ${pageNum} 页: ${url}`);
+              
+              await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
+              
+              // 提取文章列表
+              const articles = await page.evaluate(() => {
+                const items = [];
+                document.querySelectorAll('article, .post, .entry, h2 a, .post-title a').forEach(el => {
+                  const link = el.querySelector('a') || el;
+                  if (link.href && link.textContent) {
+                    items.push({
+                      title: link.textContent.trim().substring(0, 100),
+                      url: link.href
+                    });
+                  }
+                });
+                return items.slice(0, 20); // 每页最多20条
+              });
+
+              const content = await page.evaluate(() => document.body.innerText.substring(0, 5000));
+              
+              const result = {
+                page: pageNum,
+                url: url,
+                crawled_at: new Date().toISOString(),
+                articles: articles,
+                content_preview: content.substring(0, 2000)
+              };
+
+              // 保存到文件
+              const filename = path.join(OUTPUT_DIR, `page_${String(pageNum).padStart(4, '0')}.json`);
+              fs.writeFileSync(filename, JSON.stringify(result, null, 2), 'utf8');
+              
+              console.log(`✅ 第 ${pageNum} 页完成，找到 ${articles.length} 篇文章`);
+              return { success: true, page: pageNum, articles: articles.length };
+              
+            } catch (error) {
+              console.error(`❌ 第 ${pageNum} 页失败: ${error.message}`);
+              return { success: false, page: pageNum, error: error.message };
+            } finally {
+              await context.close();
+            }
+          }
+
+          async function main() {
+            console.log(`\n🚀 开始批量抓取`);
+            console.log(`📄 页码范围: ${START_PAGE} - ${END_PAGE}`);
+            console.log(`⚡ 并发数: ${CONCURRENCY}\n`);
+
+            const browser = await chromium.launch();
+            const pages = [];
+            
+            for (let i = START_PAGE; i <= END_PAGE; i++) {
+              pages.push(i);
+            }
+
+            const results = [];
+            
+            // 分批并发处理
+            for (let i = 0; i < pages.length; i += CONCURRENCY) {
+              const batch = pages.slice(i, i + CONCURRENCY);
+              const batchResults = await Promise.all(
+                batch.map(pageNum => crawlPage(browser, pageNum))
+              );
+              results.push(...batchResults);
+              
+              // 进度
+              const done = Math.min(i + CONCURRENCY, pages.length);
+              console.log(`\n📊 进度: ${done}/${pages.length} (${Math.round(done/pages.length*100)}%)\n`);
+            }
+
+            await browser.close();
+
+            // 生成汇总
+            const summary = {
+              total_pages: pages.length,
+              success: results.filter(r => r.success).length,
+              failed: results.filter(r => !r.success).length,
+              crawled_at: new Date().toISOString(),
+              failed_pages: results.filter(r => !r.success).map(r => r.page)
+            };
+
+            fs.writeFileSync(
+              path.join(OUTPUT_DIR, 'summary.json'),
+              JSON.stringify(summary, null, 2),
+              'utf8'
+            );
+
+            console.log(`\n✨ 抓取完成!`);
+            console.log(`   成功: ${summary.success} 页`);
+            console.log(`   失败: ${summary.failed} 页`);
+          }
+
+          main().catch(console.error);
+          EOF
+
+      - name: 执行抓取
+        env:
+          START_PAGE: ${{ github.event.inputs.start_page }}
+          END_PAGE: ${{ github.event.inputs.end_page }}
+          CONCURRENCY: ${{ github.event.inputs.concurrency }}
+        run: node crawl.js
+
+      - name: 提交到仓库
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add crawled_data/
+          git commit -m "data: 抓取 nihaowua.com 第 ${{ github.event.inputs.start_page }}-${{ github.event.inputs.end_page }} 页 [skip ci]" || echo "No changes"
+          git push
