@@ -1,0 +1,39 @@
+name: Daily Feishu Quote
+
+on:
+  schedule:
+    # 每天早上 8 点（北京时间 UTC+8，所以 UTC 是 0 点）
+    - cron: '0 0 * * *'
+  workflow_dispatch: # 支持手动触发测试
+
+jobs:
+  send-quote:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Pick random quote and send to Feishu
+        env:
+          FEISHU_WEBHOOK: ${{ secrets.FEISHU_WEBHOOK }}
+        run: |
+          # 从所有 page 文件中随机选择一个
+          PAGE_FILE=$(ls crawled_data/page_*.json | shuf -n 1)
+          echo "Selected file: $PAGE_FILE"
+          
+          # 从该文件的 articles 中随机抽取一条 title
+          QUOTE=$(jq -r '.articles | map(.title) | unique | .[]' "$PAGE_FILE" | shuf -n 1)
+          echo "Selected quote: $QUOTE"
+          
+          # 获取当前日期（北京时间）
+          DATE=$(TZ='Asia/Shanghai' date '+%Y年%m月%d日 %H:%M')
+          
+          # 构建消息内容
+          MESSAGE="📝 每日一句 ($DATE)\n\n$QUOTE"
+          
+          # 发送到飞书
+          curl -X POST \
+            -H "Content-Type: application/json" \
+            -d "{\"msg_type\":\"text\",\"content\":{\"text\":\"$MESSAGE\"}}" \
+            "$FEISHU_WEBHOOK"
