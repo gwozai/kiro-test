@@ -1,0 +1,19 @@
+name: 每日提醒
+
+on:
+  schedule:
+    # UTC 时间 10:30 = 北京时间 18:30
+    - cron: '30 10 * * *'
+  workflow_dispatch:  # 支持手动触发测试
+
+jobs:
+  remind:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 发送飞书提醒
+        run: |
+          CURRENT_TIME=$(TZ='Asia/Shanghai' date '+%Y年%m月%d日 %H:%M')
+          curl -X POST \
+            -H "Content-Type: application/json" \
+            -d "{\"msg_type\":\"text\",\"content\":{\"text\":\"⏰ 每日提醒：现在是 ${CURRENT_TIME}，该下班啦！\"}}" \
+            "https://open.feishu.cn/open-apis/bot/v2/hook/30ff1b91-bd07-4e99-a716-2e3a96436862"
