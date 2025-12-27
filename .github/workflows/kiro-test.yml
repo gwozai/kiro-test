@@ -1,0 +1,27 @@
+name: Kiro Test Workflow
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  hello:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Hello Kiro
+        run: |
+          echo "🚀 Hello from Kiro MCP Server!"
+          echo "📅 当前时间: $(date)"
+          echo "📁 仓库文件:"
+          ls -la
+
+      - name: Show README
+        run: |
+          echo "📄 README 内容:"
+          cat README.md
