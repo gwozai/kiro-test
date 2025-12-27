@@ -37,3 +37,60 @@ jobs:
             -H "Content-Type: application/json" \
             -d "{\"msg_type\":\"text\",\"content\":{\"text\":\"$MESSAGE\"}}" \
             "$FEISHU_WEBHOOK"
+
+      - name: Pick random image and send to Feishu
+        env:
+          FEISHU_WEBHOOK: ${{ secrets.FEISHU_WEBHOOK }}
+        run: |
+          # 随机选择一张图片
+          IMAGE_FILE=$(ls daily_images/*.{jpg,png} 2>/dev/null | shuf -n 1)
+          
+          if [ -z "$IMAGE_FILE" ]; then
+            echo "No images found"
+            exit 0
+          fi
+          
+          echo "Selected image: $IMAGE_FILE"
+          FILENAME=$(basename "$IMAGE_FILE")
+          
+          # 解析图片类型
+          TYPE=$(echo "$FILENAME" | sed 's/_[0-9]*\..*//')
+          
+          # 获取当前日期
+          DATE=$(TZ='Asia/Shanghai' date '+%Y年%m月%d日 %H:%M')
+          
+          # 上传图片到图床获取URL (使用 sm.ms)
+          UPLOAD_RESP=$(curl -s -X POST \
+            -F "smfile=@$IMAGE_FILE" \
+            "https://sm.ms/api/v2/upload")
+          
+          IMAGE_URL=$(echo "$UPLOAD_RESP" | jq -r '.data.url // .images')
+          
+          if [ -n "$IMAGE_URL" ] && [ "$IMAGE_URL" != "null" ]; then
+            echo "Image URL: $IMAGE_URL"
+            
+            # 发送图片卡片到飞书
+            curl -X POST \
+              -H "Content-Type: application/json" \
+              -d "{
+                \"msg_type\": \"interactive\",
+                \"card\": {
+                  \"header\": {
+                    \"title\": {\"tag\": \"plain_text\", \"content\": \"🖼️ 每日一图 ($DATE)\"},
+                    \"template\": \"blue\"
+                  },
+                  \"elements\": [
+                    {\"tag\": \"img\", \"img_key\": \"$IMAGE_URL\", \"alt\": {\"tag\": \"plain_text\", \"content\": \"$FILENAME\"}},
+                    {\"tag\": \"div\", \"text\": {\"tag\": \"plain_text\", \"content\": \"类型: $TYPE\"}}
+                  ]
+                }
+              }" \
+              "$FEISHU_WEBHOOK"
+          else
+            # 如果上传失败，发送文本通知
+            MESSAGE="🖼️ 每日一图 ($DATE)\n\n文件: $FILENAME\n类型: $TYPE\n\n(图片上传失败，请查看仓库)"
+            curl -X POST \
+              -H "Content-Type: application/json" \
+              -d "{\"msg_type\":\"text\",\"content\":{\"text\":\"$MESSAGE\"}}" \
+              "$FEISHU_WEBHOOK"
+          fi
