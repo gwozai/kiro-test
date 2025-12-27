@@ -104,14 +104,24 @@
 
   "resources": {
     "github_repos": [
-      {"name": "awesome-prompts", "stars": 7121, "url": "https://github.com/ai-boost/awesome-prompts"},
-      {"name": "Awesome-Prompt-Engineering", "stars": 5184, "url": "https://github.com/promptslab/Awesome-Prompt-Engineering"},
-      {"name": "code2prompt", "stars": 6908, "url": "https://github.com/mufeedvh/code2prompt"}
+      {"name": "awesome-chatgpt-prompts", "stars": 140948, "url": "https://github.com/f/awesome-chatgpt-prompts", "desc": "🔥 最火的提示词集合，14万星"},
+      {"name": "awesome-chatgpt-prompts-zh", "stars": 57567, "url": "https://github.com/PlexPt/awesome-chatgpt-prompts-zh", "desc": "🇨🇳 中文调教指南，各种场景"},
+      {"name": "Mr.-Ranedeer-AI-Tutor", "stars": 29684, "url": "https://github.com/JushBJJ/Mr.-Ranedeer-AI-Tutor", "desc": "🎓 AI 私人教师提示词"},
+      {"name": "system_prompts_leaks", "stars": 24489, "url": "https://github.com/asgeirtj/system_prompts_leaks", "desc": "🔓 ChatGPT/Claude/Gemini 系统提示词泄露"},
+      {"name": "leaked-system-prompts", "stars": 13785, "url": "https://github.com/jujumilk3/leaked-system-prompts", "desc": "📝 泄露的系统提示词集合"},
+      {"name": "chatgpt_system_prompt", "stars": 10206, "url": "https://github.com/LouisShark/chatgpt_system_prompt", "desc": "🤖 GPT 系统提示词 + 注入技术"},
+      {"name": "awesome-prompts", "stars": 7121, "url": "https://github.com/ai-boost/awesome-prompts", "desc": "⭐ GPTs Store 顶级提示词"},
+      {"name": "code2prompt", "stars": 6908, "url": "https://github.com/mufeedvh/code2prompt", "desc": "🛠️ 代码转提示词 CLI 工具"},
+      {"name": "Awesome-Prompt-Engineering", "stars": 5184, "url": "https://github.com/promptslab/Awesome-Prompt-Engineering", "desc": "📚 提示词工程资源汇总"},
+      {"name": "awesome-ai-system-prompts", "stars": 4700, "url": "https://github.com/dontriskit/awesome-ai-system-prompts", "desc": "🧠 顶级 AI 工具系统提示词"},
+      {"name": "Learn_Prompting", "stars": 4636, "url": "https://github.com/trigaten/Learn_Prompting", "desc": "📖 提示词工程学习指南"},
+      {"name": "TheBigPromptLibrary", "stars": 4377, "url": "https://github.com/0xeb/TheBigPromptLibrary", "desc": "📦 大型提示词库"}
     ],
     "reference_urls": [
       "https://claude.com/blog/best-practices-for-prompt-engineering",
       "https://promptbuilder.cc/blog/prompt-engineering-best-practices-2025/",
-      "https://tensorblue.com/blog/prompt-engineering-mastery-advanced-techniques-gpt4-claude-2025"
+      "https://tensorblue.com/blog/prompt-engineering-mastery-advanced-techniques-gpt4-claude-2025",
+      "https://learnprompting.org/"
     ]
   }
 }
