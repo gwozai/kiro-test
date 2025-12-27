@@ -1,0 +1,139 @@
+name: 通用网页抓取
+
+on:
+  workflow_dispatch:
+    inputs:
+      urls:
+        description: '要抓取的URL（多个用逗号分隔）'
+        required: true
+        default: 'https://example.com'
+      wait_time:
+        description: '等待时间(秒)，用于绕过验证'
+        required: false
+        default: '5'
+
+permissions:
+  contents: write
+
+jobs:
+  crawl:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: 安装依赖
+        run: |
+          npm install playwright
+          npx playwright install chromium --with-deps
+
+      - name: 创建抓取脚本
+        run: |
+          cat > crawl.js << 'EOF'
+          const { chromium } = require('playwright');
+          const fs = require('fs');
+
+          const URLS = process.env.URLS.split(',').map(u => u.trim());
+          const WAIT_TIME = parseInt(process.env.WAIT_TIME) || 5;
+          const OUTPUT_DIR = 'crawled_data';
+
+          if (!fs.existsSync(OUTPUT_DIR)) {
+            fs.mkdirSync(OUTPUT_DIR, { recursive: true });
+          }
+
+          async function crawlUrl(browser, url, index) {
+            const context = await browser.newContext({
+              userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+            });
+            const page = await context.newPage();
+            
+            try {
+              console.log(`\n🔄 抓取: ${url}`);
+              
+              await page.goto(url, { waitUntil: 'networkidle', timeout: 60000 });
+              
+              // 等待页面加载和可能的验证
+              console.log(`⏳ 等待 ${WAIT_TIME} 秒...`);
+              await page.waitForTimeout(WAIT_TIME * 1000);
+              
+              const title = await page.title();
+              console.log(`📄 标题: ${title}`);
+              
+              // 检查是否有验证页面
+              if (title.includes('请稍候') || title.includes('Cloudflare') || title.includes('验证')) {
+                console.log('⚠️ 检测到验证页面，尝试等待更长时间...');
+                await page.waitForTimeout(10000);
+              }
+              
+              const content = await page.evaluate(() => {
+                // 移除脚本和样式
+                document.querySelectorAll('script, style, nav, header, footer, .ad, .ads').forEach(el => el.remove());
+                return document.body.innerText;
+              });
+
+              const result = {
+                url: url,
+                title: title,
+                crawled_at: new Date().toISOString(),
+                content_length: content.length,
+                content_preview: content.substring(0, 500) + '...'
+              };
+
+              const filename = `${OUTPUT_DIR}/url_${index + 1}.json`;
+              fs.writeFileSync(filename, JSON.stringify(result, null, 2), 'utf8');
+              
+              // 保存完整文本
+              fs.writeFileSync(`${OUTPUT_DIR}/url_${index + 1}.txt`, content, 'utf8');
+              
+              console.log(`✅ 完成，内容长度: ${content.length} 字符`);
+              return { success: true, url, title };
+              
+            } catch (error) {
+              console.error(`❌ 失败: ${error.message}`);
+              return { success: false, url, error: error.message };
+            } finally {
+              await context.close();
+            }
+          }
+
+          async function main() {
+            console.log(`🚀 开始抓取 ${URLS.length} 个URL\n`);
+            
+            const browser = await chromium.launch({ headless: true });
+            const results = [];
+
+            for (let i = 0; i < URLS.length; i++) {
+              const result = await crawlUrl(browser, URLS[i], i);
+              results.push(result);
+            }
+
+            await browser.close();
+
+            const summary = {
+              total: URLS.length,
+              success: results.filter(r => r.success).length,
+              failed: results.filter(r => !r.success).length,
+              results: results
+            };
+
+            fs.writeFileSync(`${OUTPUT_DIR}/summary.json`, JSON.stringify(summary, null, 2));
+            
+            console.log(`\n✨ 完成! 成功: ${summary.success}, 失败: ${summary.failed}`);
+          }
+
+          main().catch(console.error);
+          EOF
+
+      - name: 执行抓取
+        env:
+          URLS: ${{ github.event.inputs.urls }}
+          WAIT_TIME: ${{ github.event.inputs.wait_time }}
+        run: node crawl.js
+
+      - name: 提交到仓库
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add crawled_data/
+          git commit -m "data: 抓取网页内容 [skip ci]" || echo "No changes"
+          git push
