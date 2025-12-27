@@ -1,0 +1,71 @@
+name: Firecrawl 网页抓取
+
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: '要抓取的网页 URL'
+        required: true
+        default: 'https://github.com/gwozai'
+
+jobs:
+  crawl:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 安装 Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: 启动 Firecrawl 并抓取
+        run: |
+          # 安装 firecrawl
+          npm install @mendable/firecrawl-js
+          
+          # 由于 Firecrawl 需要 API key，我们用简单的方式抓取
+          # 使用 curl + html2text 作为替代方案
+          sudo apt-get update && sudo apt-get install -y html2text
+          
+          echo "🔥 开始抓取: ${{ github.event.inputs.url }}"
+          echo "================================"
+          
+          # 抓取网页并转换为文本
+          curl -s "${{ github.event.inputs.url }}" | html2text | head -200
+          
+          echo "================================"
+          echo "✅ 抓取完成!"
+
+      - name: 使用 Playwright 抓取 (备选方案)
+        run: |
+          npm install playwright
+          npx playwright install chromium --with-deps
+          
+          cat > crawl.js << 'EOF'
+          const { chromium } = require('playwright');
+          
+          (async () => {
+            const browser = await chromium.launch();
+            const page = await browser.newPage();
+            const url = process.argv[2] || 'https://github.com';
+            
+            console.log(`\n🌐 使用 Playwright 抓取: ${url}\n`);
+            
+            await page.goto(url, { waitUntil: 'networkidle' });
+            
+            const title = await page.title();
+            console.log(`📄 标题: ${title}\n`);
+            
+            const text = await page.evaluate(() => {
+              return document.body.innerText.substring(0, 3000);
+            });
+            
+            console.log('📝 页面内容 (前3000字符):');
+            console.log('─'.repeat(50));
+            console.log(text);
+            console.log('─'.repeat(50));
+            
+            await browser.close();
+          })();
+          EOF
+          
+          node crawl.js "${{ github.event.inputs.url }}"
