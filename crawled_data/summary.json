@@ -1,7 +1,12 @@
 {
-  "total_pages": 455,
-  "success": 455,
-  "failed": 0,
-  "crawled_at": "2025-12-27T10:39:22.493Z",
-  "failed_pages": []
+  "total": 1,
+  "success": 0,
+  "failed": 1,
+  "results": [
+    {
+      "success": false,
+      "url": "https://www.69shuba.com/txt/83216/39104259",
+      "error": "page.goto: Timeout 60000ms exceeded.\nCall log:\n  - navigating to \"https://www.69shuba.com/txt/83216/39104259\", waiting until \"networkidle\"\n"
+    }
+  ]
 }
