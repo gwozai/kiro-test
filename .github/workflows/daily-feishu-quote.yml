@@ -38,59 +38,63 @@ jobs:
             -d "{\"msg_type\":\"text\",\"content\":{\"text\":\"$MESSAGE\"}}" \
             "$FEISHU_WEBHOOK"
 
-      - name: Pick random image and send to Feishu
+      - name: Fetch random image from API and send to Feishu
         env:
           FEISHU_WEBHOOK: ${{ secrets.FEISHU_WEBHOOK }}
         run: |
-          # 随机选择一张图片
-          IMAGE_FILE=$(ls daily_images/*.{jpg,png} 2>/dev/null | shuf -n 1)
+          # 随机选择一个图片类型
+          TYPES=("horizontal" "ai_yes" "normal" "r18_0" "r18_1" "r18_vertical" "vertical")
+          TYPE=${TYPES[$RANDOM % ${#TYPES[@]}]}
           
-          if [ -z "$IMAGE_FILE" ]; then
-            echo "No images found"
-            exit 0
-          fi
+          # 根据类型设置 API 参数
+          case $TYPE in
+            "horizontal") PARAMS="imageSizeType=1" ;;
+            "ai_yes") PARAMS="aiType=2" ;;
+            "normal") PARAMS="" ;;
+            "r18_0") PARAMS="r18Type=0" ;;
+            "r18_1") PARAMS="r18Type=1" ;;
+            "r18_vertical") PARAMS="r18Type=1&imageSizeType=2" ;;
+            "vertical") PARAMS="imageSizeType=2" ;;
+          esac
           
-          echo "Selected image: $IMAGE_FILE"
-          FILENAME=$(basename "$IMAGE_FILE")
+          echo "Selected type: $TYPE"
           
-          # 解析图片类型
-          TYPE=$(echo "$FILENAME" | sed 's/_[0-9]*\..*//')
+          # 从 Mossia API 获取图片
+          API_URL="https://api.mossia.top/duckMo?num=1&${PARAMS}"
+          echo "API URL: $API_URL"
           
-          # 获取当前日期
-          DATE=$(TZ='Asia/Shanghai' date '+%Y年%m月%d日 %H:%M')
+          RESP=$(curl -s "$API_URL")
+          echo "API Response: $RESP"
           
-          # 上传图片到图床获取URL (使用 sm.ms)
-          UPLOAD_RESP=$(curl -s -X POST \
-            -F "smfile=@$IMAGE_FILE" \
-            "https://sm.ms/api/v2/upload")
+          # 解析响应
+          SUCCESS=$(echo "$RESP" | jq -r '.success')
           
-          IMAGE_URL=$(echo "$UPLOAD_RESP" | jq -r '.data.url // .images')
-          
-          if [ -n "$IMAGE_URL" ] && [ "$IMAGE_URL" != "null" ]; then
-            echo "Image URL: $IMAGE_URL"
+          if [ "$SUCCESS" = "true" ]; then
+            IMAGE_URL=$(echo "$RESP" | jq -r '.data[0].urlsList[0].url // empty')
+            PID=$(echo "$RESP" | jq -r '.data[0].pid // "unknown"')
+            TITLE=$(echo "$RESP" | jq -r '.data[0].title // "无标题"' | head -c 50)
+            AUTHOR=$(echo "$RESP" | jq -r '.data[0].author // "未知"')
             
-            # 发送图片卡片到飞书
-            curl -X POST \
-              -H "Content-Type: application/json" \
-              -d "{
-                \"msg_type\": \"interactive\",
-                \"card\": {
-                  \"header\": {
-                    \"title\": {\"tag\": \"plain_text\", \"content\": \"🖼️ 每日一图 ($DATE)\"},
-                    \"template\": \"blue\"
-                  },
-                  \"elements\": [
-                    {\"tag\": \"img\", \"img_key\": \"$IMAGE_URL\", \"alt\": {\"tag\": \"plain_text\", \"content\": \"$FILENAME\"}},
-                    {\"tag\": \"div\", \"text\": {\"tag\": \"plain_text\", \"content\": \"类型: $TYPE\"}}
-                  ]
-                }
-              }" \
-              "$FEISHU_WEBHOOK"
+            if [ -n "$IMAGE_URL" ]; then
+              echo "Image URL: $IMAGE_URL"
+              
+              # 获取当前日期
+              DATE=$(TZ='Asia/Shanghai' date '+%Y年%m月%d日 %H:%M')
+              
+              # 发送富文本消息到飞书（包含图片链接）
+              MESSAGE="🖼️ 每日一图 ($DATE)\n\n📌 类型: $TYPE\n🎨 作者: $AUTHOR\n📝 标题: $TITLE\n🔗 PID: $PID\n\n🌐 图片链接:\n$IMAGE_URL"
+              
+              curl -X POST \
+                -H "Content-Type: application/json" \
+                -d "{\"msg_type\":\"text\",\"content\":{\"text\":\"$MESSAGE\"}}" \
+                "$FEISHU_WEBHOOK"
+              
+              echo "Message sent successfully!"
+            else
+              echo "No image URL in response"
+            fi
           else
-            # 如果上传失败，发送文本通知
-            MESSAGE="🖼️ 每日一图 ($DATE)\n\n文件: $FILENAME\n类型: $TYPE\n\n(图片上传失败，请查看仓库)"
-            curl -X POST \
-              -H "Content-Type: application/json" \
-              -d "{\"msg_type\":\"text\",\"content\":{\"text\":\"$MESSAGE\"}}" \
-              "$FEISHU_WEBHOOK"
+            echo "API request failed"
+            MESSAGE=$(echo "$RESP" | jq -r '.message // "未知错误"')
+            echo "Error: $MESSAGE"
           fi
