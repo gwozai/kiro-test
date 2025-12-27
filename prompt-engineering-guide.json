@@ -1,0 +1,117 @@
+{
+  "title": "提示词工程指南 - Prompt Engineering Guide",
+  "updated_at": "2025-12-27T11:00:00Z",
+  "source": "GitHub + Web Search",
+  
+  "frameworks": {
+    "CO-STAR": {
+      "name": "CO-STAR Framework",
+      "description": "最流行的提示词结构框架",
+      "components": {
+        "C": {"en": "Context", "zh": "上下文", "desc": "提供背景信息"},
+        "O": {"en": "Objective", "zh": "目标", "desc": "明确你想要达成的目标"},
+        "S": {"en": "Style", "zh": "风格", "desc": "指定写作风格（学术/对话/技术）"},
+        "T": {"en": "Tone", "zh": "语气", "desc": "设定情感基调（专业/友好/严肃）"},
+        "A": {"en": "Audience", "zh": "受众", "desc": "定义目标读者"},
+        "R": {"en": "Response", "zh": "响应格式", "desc": "指定输出格式（JSON/列表/报告）"}
+      },
+      "template": "【上下文】{背景信息}\n【目标】{你想要什么}\n【风格】{写作风格}\n【语气】{情感基调}\n【受众】{目标读者}\n【格式】{输出格式}"
+    },
+    "RACE": {
+      "name": "RACE Framework",
+      "description": "角色导向的提示框架",
+      "components": {
+        "R": {"en": "Role", "zh": "角色", "desc": "告诉 AI 它是谁"},
+        "A": {"en": "Action", "zh": "行动", "desc": "告诉 AI 要做什么"},
+        "C": {"en": "Context", "zh": "上下文", "desc": "提供背景信息"},
+        "E": {"en": "Expectations", "zh": "期望", "desc": "定义输出标准"}
+      },
+      "template": "你是一个{角色}。\n请{行动}。\n背景：{上下文}\n要求：{期望}"
+    },
+    "RAPPEL": {
+      "name": "RAPPEL Framework",
+      "description": "适合复杂任务的迭代框架",
+      "components": {
+        "R": {"en": "Role", "zh": "角色", "desc": "定义 AI 身份"},
+        "A": {"en": "Action", "zh": "行动", "desc": "说明任务"},
+        "P1": {"en": "Prime", "zh": "预热", "desc": "询问 AI 对任务的理解"},
+        "P2": {"en": "Prompt", "zh": "提示", "desc": "详细说明如何执行"},
+        "E": {"en": "Evaluate", "zh": "评估", "desc": "检查和纠正结果"},
+        "L": {"en": "Learn", "zh": "学习", "desc": "让 AI 总结优化后的提示词"}
+      }
+    },
+    "AUTOMAT": {
+      "name": "AUTOMAT Framework",
+      "description": "全面的提示词框架",
+      "components": {
+        "A": {"en": "Act as", "zh": "扮演", "desc": "角色设定"},
+        "U": {"en": "User Persona", "zh": "用户画像", "desc": "目标受众"},
+        "T": {"en": "Targeted Action", "zh": "目标行动", "desc": "具体任务"},
+        "O": {"en": "Output Definition", "zh": "输出定义", "desc": "期望格式"},
+        "M": {"en": "Mode/Tonality", "zh": "模式/语调", "desc": "风格设定"},
+        "A2": {"en": "Atypical Cases", "zh": "特殊情况", "desc": "边界处理"},
+        "T2": {"en": "Topic Whitelisting", "zh": "主题白名单", "desc": "范围限制"}
+      }
+    }
+  },
+
+  "techniques": {
+    "基础技巧": [
+      {"name": "明确指令", "desc": "直接告诉 AI 你想要什么，不要含糊", "example": "❌ 写点东西 → ✅ 写一篇500字的产品介绍"},
+      {"name": "角色设定", "desc": "给 AI 一个专业身份", "example": "你是一位有10年经验的Python架构师"},
+      {"name": "提供示例", "desc": "Few-shot learning，给1-3个例子", "example": "按照以下格式输出：\n输入：苹果 → 输出：水果\n输入：汽车 → 输出："},
+      {"name": "分步骤", "desc": "复杂任务拆解成步骤", "example": "第一步：分析问题\n第二步：列出方案\n第三步：给出建议"},
+      {"name": "指定格式", "desc": "明确输出格式", "example": "以JSON格式输出，包含title、content、tags字段"}
+    ],
+    "高级技巧": [
+      {"name": "Chain-of-Thought", "desc": "让 AI 展示推理过程", "example": "请一步步思考，展示你的推理过程"},
+      {"name": "Self-Consistency", "desc": "多次生成取最佳", "example": "请给出3个不同的方案，然后选择最优的"},
+      {"name": "反向提示", "desc": "告诉 AI 不要做什么", "example": "不要使用专业术语，不要超过200字"},
+      {"name": "元提示", "desc": "让 AI 优化你的提示词", "example": "请帮我优化这个提示词，使其更清晰有效"},
+      {"name": "分隔符", "desc": "用标记分隔不同部分", "example": "使用 ### 或 XML 标签 <context></context>"}
+    ],
+    "Claude专属": [
+      {"name": "XML标签", "desc": "Claude 对 XML 标签响应很好", "example": "<task>任务描述</task>\n<context>背景信息</context>"},
+      {"name": "假设与风险", "desc": "要求列出假设和风险", "example": "请列出你的假设、潜在风险和缓解措施"},
+      {"name": "批判性思考", "desc": "要求 Claude 自我批评", "example": "完成后，请批判性地审视你的回答"}
+    ],
+    "ChatGPT专属": [
+      {"name": "结构化输出", "desc": "GPT 擅长表格和 JSON", "example": "以Markdown表格形式输出"},
+      {"name": "Few-shot", "desc": "提供1-3个示例效果最佳", "example": "参考以下示例格式..."},
+      {"name": "角色+标题", "desc": "使用角色和清晰的标题结构", "example": "## 任务\n## 要求\n## 输出格式"}
+    ]
+  },
+
+  "templates": {
+    "通用模板": "【角色】你是{专业身份}\n【任务】请{具体任务}\n【背景】{相关信息}\n【要求】\n- {要求1}\n- {要求2}\n【格式】{输出格式}",
+    
+    "代码生成": "你是一位资深{语言}开发者。\n\n请编写一个{功能描述}的函数/类。\n\n要求：\n- 代码简洁高效\n- 添加必要注释\n- 包含错误处理\n- 提供使用示例\n\n技术栈：{技术要求}",
+    
+    "文案写作": "【角色】你是一位专业的{领域}文案\n【任务】撰写{内容类型}\n【受众】{目标人群}\n【风格】{风格要求}\n【字数】{字数限制}\n【关键词】{必须包含的词}",
+    
+    "数据分析": "你是一位数据分析专家。\n\n请分析以下数据：\n{数据}\n\n分析维度：\n1. {维度1}\n2. {维度2}\n\n输出要求：\n- 关键发现\n- 数据洞察\n- 行动建议",
+    
+    "问题解决": "【问题描述】{问题}\n【已尝试】{已有方案}\n【约束条件】{限制}\n【期望结果】{目标}\n\n请提供：\n1. 问题分析\n2. 解决方案（至少2个）\n3. 推荐方案及理由"
+  },
+
+  "enhancement_prompts": {
+    "优化提示词": "请帮我优化以下提示词，使其更清晰、更具体、更有效：\n\n原始提示词：{你的提示词}\n\n请：\n1. 指出原提示词的问题\n2. 提供优化后的版本\n3. 解释改进之处",
+    
+    "生成提示词": "我需要一个提示词来{目标}。\n\n请使用CO-STAR框架为我生成一个高质量的提示词，包含：\n- 上下文\n- 目标\n- 风格\n- 语气\n- 受众\n- 输出格式",
+    
+    "评估提示词": "请评估以下提示词的质量（1-10分），并给出改进建议：\n\n{提示词}\n\n评估维度：\n- 清晰度\n- 具体性\n- 完整性\n- 可执行性"
+  },
+
+  "resources": {
+    "github_repos": [
+      {"name": "awesome-prompts", "stars": 7121, "url": "https://github.com/ai-boost/awesome-prompts"},
+      {"name": "Awesome-Prompt-Engineering", "stars": 5184, "url": "https://github.com/promptslab/Awesome-Prompt-Engineering"},
+      {"name": "code2prompt", "stars": 6908, "url": "https://github.com/mufeedvh/code2prompt"}
+    ],
+    "reference_urls": [
+      "https://claude.com/blog/best-practices-for-prompt-engineering",
+      "https://promptbuilder.cc/blog/prompt-engineering-best-practices-2025/",
+      "https://tensorblue.com/blog/prompt-engineering-mastery-advanced-techniques-gpt4-claude-2025"
+    ]
+  }
+}
