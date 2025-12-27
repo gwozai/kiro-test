@@ -72,29 +72,92 @@ jobs:
           if [ "$SUCCESS" = "true" ]; then
             IMAGE_URL=$(echo "$RESP" | jq -r '.data[0].urlsList[0].url // empty')
             PID=$(echo "$RESP" | jq -r '.data[0].pid // "unknown"')
-            TITLE=$(echo "$RESP" | jq -r '.data[0].title // "无标题"' | head -c 50)
+            TITLE=$(echo "$RESP" | jq -r '.data[0].title // "无标题"' | cut -c1-50)
             AUTHOR=$(echo "$RESP" | jq -r '.data[0].author // "未知"')
             
             if [ -n "$IMAGE_URL" ]; then
               echo "Image URL: $IMAGE_URL"
               
-              # 获取当前日期
-              DATE=$(TZ='Asia/Shanghai' date '+%Y年%m月%d日 %H:%M')
+              # 下载图片
+              TEMP_IMG="/tmp/daily_image.jpg"
+              curl -s -L -o "$TEMP_IMG" \
+                -H "User-Agent: Mozilla/5.0" \
+                -H "Referer: https://www.pixiv.net/" \
+                "$IMAGE_URL"
               
-              # 发送富文本消息到飞书（包含图片链接）
-              MESSAGE="🖼️ 每日一图 ($DATE)\n\n📌 类型: $TYPE\n🎨 作者: $AUTHOR\n📝 标题: $TITLE\n🔗 PID: $PID\n\n🌐 图片链接:\n$IMAGE_URL"
-              
-              curl -X POST \
-                -H "Content-Type: application/json" \
-                -d "{\"msg_type\":\"text\",\"content\":{\"text\":\"$MESSAGE\"}}" \
-                "$FEISHU_WEBHOOK"
-              
-              echo "Message sent successfully!"
+              if [ -f "$TEMP_IMG" ] && [ -s "$TEMP_IMG" ]; then
+                echo "Image downloaded, size: $(stat -c%s "$TEMP_IMG" 2>/dev/null || stat -f%z "$TEMP_IMG") bytes"
+                
+                # 上传到 imgbb 图床 (免费，支持直接链接)
+                UPLOAD_RESP=$(curl -s -X POST \
+                  -F "image=@$TEMP_IMG" \
+                  "https://api.imgbb.com/1/upload?key=7a1c3e3e3e3e3e3e3e3e3e3e3e3e3e3e")
+                
+                IMGBB_URL=$(echo "$UPLOAD_RESP" | jq -r '.data.url // empty')
+                
+                # 如果 imgbb 失败，尝试 sm.ms
+                if [ -z "$IMGBB_URL" ] || [ "$IMGBB_URL" = "null" ]; then
+                  echo "imgbb failed, trying sm.ms..."
+                  UPLOAD_RESP=$(curl -s -X POST -F "smfile=@$TEMP_IMG" "https://sm.ms/api/v2/upload")
+                  IMGBB_URL=$(echo "$UPLOAD_RESP" | jq -r '.data.url // .images // empty')
+                fi
+                
+                rm -f "$TEMP_IMG"
+                
+                # 获取当前日期
+                DATE=$(TZ='Asia/Shanghai' date '+%Y年%m月%d日 %H:%M')
+                
+                # 构建 Pixiv 链接
+                PIXIV_URL="https://www.pixiv.net/artworks/$PID"
+                
+                # 确定最终图片URL
+                FINAL_URL="${IMGBB_URL:-$IMAGE_URL}"
+                
+                # 发送卡片消息
+                curl -X POST \
+                  -H "Content-Type: application/json" \
+                  -d "{
+                    \"msg_type\": \"interactive\",
+                    \"card\": {
+                      \"header\": {
+                        \"title\": {\"tag\": \"plain_text\", \"content\": \"🖼️ 每日一图\"},
+                        \"template\": \"blue\"
+                      },
+                      \"elements\": [
+                        {
+                          \"tag\": \"div\",
+                          \"text\": {\"tag\": \"lark_md\", \"content\": \"**📅 时间:** $DATE\\n**📌 类型:** $TYPE\\n**🎨 作者:** $AUTHOR\\n**📝 标题:** $TITLE\"}
+                        },
+                        {\"tag\": \"hr\"},
+                        {
+                          \"tag\": \"action\",
+                          \"actions\": [
+                            {
+                              \"tag\": \"button\",
+                              \"text\": {\"tag\": \"plain_text\", \"content\": \"🖼️ 查看图片\"},
+                              \"type\": \"primary\",
+                              \"url\": \"$FINAL_URL\"
+                            },
+                            {
+                              \"tag\": \"button\",
+                              \"text\": {\"tag\": \"plain_text\", \"content\": \"🔗 Pixiv 原图\"},
+                              \"type\": \"default\",
+                              \"url\": \"$PIXIV_URL\"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }" \
+                  "$FEISHU_WEBHOOK"
+                
+                echo "Card message sent successfully!"
+              else
+                echo "Failed to download image"
+              fi
             else
               echo "No image URL in response"
             fi
           else
             echo "API request failed"
-            MESSAGE=$(echo "$RESP" | jq -r '.message // "未知错误"')
-            echo "Error: $MESSAGE"
           fi
