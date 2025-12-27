@@ -1,7 +1,7 @@
 {
   "title": "提示词工程指南 - Prompt Engineering Guide",
-  "updated_at": "2025-12-27T11:00:00Z",
-  "source": "GitHub + Web Search",
+  "updated_at": "2025-12-27T13:00:00Z",
+  "source": "GitHub + Web Search + prompts.chat",
   
   "frameworks": {
     "CO-STAR": {
@@ -52,6 +52,22 @@
         "A2": {"en": "Atypical Cases", "zh": "特殊情况", "desc": "边界处理"},
         "T2": {"en": "Topic Whitelisting", "zh": "主题白名单", "desc": "范围限制"}
       }
+    },
+    "LangGPT": {
+      "name": "LangGPT 结构化提示词",
+      "description": "最流行的结构化提示词框架，11k+ stars",
+      "url": "https://github.com/langgptai/LangGPT",
+      "components": {
+        "Role": "角色定义",
+        "Profile": "角色简介（author/version/language/description）",
+        "Goals": "目标列表",
+        "Constraints": "约束条件",
+        "Skills": "技能列表",
+        "Workflows": "工作流程",
+        "OutputFormat": "输出格式",
+        "Initialization": "初始化行为"
+      },
+      "template": "# Role: {角色名}\n\n## Profile\n- Author: {作者}\n- Version: {版本}\n- Language: {语言}\n- Description: {描述}\n\n## Goals\n1. {目标1}\n2. {目标2}\n\n## Constraints\n1. {约束1}\n2. {约束2}\n\n## Skills\n1. {技能1}\n2. {技能2}\n\n## Workflows\n1. {步骤1}\n2. {步骤2}\n\n## OutputFormat\n{输出格式说明}\n\n## Initialization\n{初始化行为}"
     }
   },
 
@@ -103,25 +119,69 @@
   },
 
   "resources": {
-    "github_repos": [
-      {"name": "awesome-chatgpt-prompts", "stars": 140948, "url": "https://github.com/f/awesome-chatgpt-prompts", "desc": "🔥 最火的提示词集合，14万星"},
-      {"name": "awesome-chatgpt-prompts-zh", "stars": 57567, "url": "https://github.com/PlexPt/awesome-chatgpt-prompts-zh", "desc": "🇨🇳 中文调教指南，各种场景"},
-      {"name": "Mr.-Ranedeer-AI-Tutor", "stars": 29684, "url": "https://github.com/JushBJJ/Mr.-Ranedeer-AI-Tutor", "desc": "🎓 AI 私人教师提示词"},
-      {"name": "system_prompts_leaks", "stars": 24489, "url": "https://github.com/asgeirtj/system_prompts_leaks", "desc": "🔓 ChatGPT/Claude/Gemini 系统提示词泄露"},
-      {"name": "leaked-system-prompts", "stars": 13785, "url": "https://github.com/jujumilk3/leaked-system-prompts", "desc": "📝 泄露的系统提示词集合"},
-      {"name": "chatgpt_system_prompt", "stars": 10206, "url": "https://github.com/LouisShark/chatgpt_system_prompt", "desc": "🤖 GPT 系统提示词 + 注入技术"},
-      {"name": "awesome-prompts", "stars": 7121, "url": "https://github.com/ai-boost/awesome-prompts", "desc": "⭐ GPTs Store 顶级提示词"},
-      {"name": "code2prompt", "stars": 6908, "url": "https://github.com/mufeedvh/code2prompt", "desc": "🛠️ 代码转提示词 CLI 工具"},
-      {"name": "Awesome-Prompt-Engineering", "stars": 5184, "url": "https://github.com/promptslab/Awesome-Prompt-Engineering", "desc": "📚 提示词工程资源汇总"},
-      {"name": "awesome-ai-system-prompts", "stars": 4700, "url": "https://github.com/dontriskit/awesome-ai-system-prompts", "desc": "🧠 顶级 AI 工具系统提示词"},
-      {"name": "Learn_Prompting", "stars": 4636, "url": "https://github.com/trigaten/Learn_Prompting", "desc": "📖 提示词工程学习指南"},
-      {"name": "TheBigPromptLibrary", "stars": 4377, "url": "https://github.com/0xeb/TheBigPromptLibrary", "desc": "📦 大型提示词库"}
-    ],
+    "github_repos": {
+      "系统提示词泄露": [
+        {"name": "system_prompts_leaks", "stars": 24490, "url": "https://github.com/asgeirtj/system_prompts_leaks", "desc": "🔥 ChatGPT/Claude/Gemini 系统提示词泄露（最新最全）"},
+        {"name": "leaked-system-prompts", "stars": 13785, "url": "https://github.com/jujumilk3/leaked-system-prompts", "desc": "📝 泄露的系统提示词集合"},
+        {"name": "chatgpt_system_prompt", "stars": 10206, "url": "https://github.com/LouisShark/chatgpt_system_prompt", "desc": "🤖 GPT 系统提示词 + 注入技术"},
+        {"name": "awesome-ai-system-prompts", "stars": 4700, "url": "https://github.com/dontriskit/awesome-ai-system-prompts", "desc": "🧠 顶级 AI 工具系统提示词（Cursor/v0/Loveable等）"},
+        {"name": "TheBigPromptLibrary", "stars": 4377, "url": "https://github.com/0xeb/TheBigPromptLibrary", "desc": "📦 大型提示词库"}
+      ],
+      "提示词集合": [
+        {"name": "awesome-chatgpt-prompts", "stars": 140948, "url": "https://github.com/f/awesome-chatgpt-prompts", "desc": "🔥 最火的提示词集合，14万星"},
+        {"name": "awesome-chatgpt-prompts-zh", "stars": 57567, "url": "https://github.com/PlexPt/awesome-chatgpt-prompts-zh", "desc": "🇨🇳 中文调教指南，各种场景"},
+        {"name": "LangGPT", "stars": 11310, "url": "https://github.com/langgptai/LangGPT", "desc": "📐 结构化提示词框架（元提示词发起者）"},
+        {"name": "BlackFriday-GPTs-Prompts", "stars": 8966, "url": "https://github.com/friuns2/BlackFriday-GPTs-Prompts", "desc": "🆓 免费 GPTs 列表"},
+        {"name": "awesome-gpt4o-images", "stars": 7807, "url": "https://github.com/jamez-bondos/awesome-gpt4o-images", "desc": "🎨 GPT-4o 图像生成提示词"},
+        {"name": "awesome-prompts", "stars": 7121, "url": "https://github.com/ai-boost/awesome-prompts", "desc": "⭐ GPTs Store 顶级提示词"},
+        {"name": "awesome-claude-prompts", "stars": 4037, "url": "https://github.com/langgptai/awesome-claude-prompts", "desc": "🟠 Claude 专属提示词集合"}
+      ],
+      "越狱与安全": [
+        {"name": "L1B3RT4S", "stars": 16291, "url": "https://github.com/elder-plinius/L1B3RT4S", "desc": "🐉 AI 越狱提示词（红队测试）"},
+        {"name": "Awesome_GPT_Super_Prompting", "stars": 3497, "url": "https://github.com/CyberAlbSecOP/Awesome_GPT_Super_Prompting", "desc": "🔐 提示词注入与安全研究"}
+      ],
+      "学习资源": [
+        {"name": "Mr.-Ranedeer-AI-Tutor", "stars": 29684, "url": "https://github.com/JushBJJ/Mr.-Ranedeer-AI-Tutor", "desc": "🎓 AI 私人教师提示词"},
+        {"name": "code2prompt", "stars": 6908, "url": "https://github.com/mufeedvh/code2prompt", "desc": "🛠️ 代码转提示词 CLI 工具"},
+        {"name": "Awesome-Prompt-Engineering", "stars": 5185, "url": "https://github.com/promptslab/Awesome-Prompt-Engineering", "desc": "📚 提示词工程资源汇总"},
+        {"name": "Learn_Prompting", "stars": 4636, "url": "https://github.com/trigaten/Learn_Prompting", "desc": "📖 提示词工程学习指南"},
+        {"name": "ChatGPT-System-Prompts", "stars": 1164, "url": "https://github.com/mustvlad/ChatGPT-System-Prompts", "desc": "📋 ChatGPT 系统提示词集合"},
+        {"name": "Get-Things-Done-with-Prompt-Engineering-and-LangChain", "stars": 1225, "url": "https://github.com/curiousily/Get-Things-Done-with-Prompt-Engineering-and-LangChain", "desc": "📓 LangChain + 提示词工程教程"}
+      ],
+      "工具与扩展": [
+        {"name": "aide", "stars": 2667, "url": "https://github.com/nicepkg/aide", "desc": "💻 VSCode AI 助手（一键注释/转换/UI生成代码）"},
+        {"name": "gp.nvim", "stars": 1294, "url": "https://github.com/Robitx/gp.nvim", "desc": "📝 Neovim AI 插件"},
+        {"name": "tuui", "stars": 1114, "url": "https://github.com/AI-QL/tuui", "desc": "🖥️ 桌面 MCP 客户端"},
+        {"name": "tweakcc", "stars": 664, "url": "https://github.com/Piebald-AI/tweakcc", "desc": "🔧 Claude Code 系统提示词定制工具"}
+      ]
+    },
     "reference_urls": [
       "https://claude.com/blog/best-practices-for-prompt-engineering",
       "https://promptbuilder.cc/blog/prompt-engineering-best-practices-2025/",
       "https://tensorblue.com/blog/prompt-engineering-mastery-advanced-techniques-gpt4-claude-2025",
-      "https://learnprompting.org/"
+      "https://learnprompting.org/",
+      "https://prompts.chat/"
+    ],
+    "prompts_chat_examples": [
+      {
+        "title": "AI Assistant for University Assignments",
+        "author": "Carlos-Iverson",
+        "category": "Education",
+        "desc": "帮助大学生完成作业，生成可直接复制的学术内容"
+      },
+      {
+        "title": "开题报告撰写助手",
+        "author": "Shidongfang",
+        "category": "Education",
+        "desc": "帮助用户撰写学术开题报告，提供结构化指导"
+      }
     ]
+  },
+
+  "statistics": {
+    "total_repos": 22,
+    "total_stars": "350k+",
+    "categories": ["系统提示词泄露", "提示词集合", "越狱与安全", "学习资源", "工具与扩展"],
+    "last_updated": "2025-12-27"
   }
 }
